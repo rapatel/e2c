@@ -58,6 +58,8 @@ public class TK {
     public static final TK NUM    = new TK("TK.NUM");      // number
     
     public static final TK STR     = new TK("TK.STR");     // string
+    
+    public static final TK ARR     = new TK("TK.ARR");     // array
 
     public static final TK EOF    = new TK("TK.EOF");      // end of file
 

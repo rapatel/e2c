@@ -40,6 +40,7 @@ public class Scan {
         linenumber = 0;
         putback = true;
         got_eof = false;
+        var_arr = false;
     }
 
     // internal state of scanner
@@ -50,6 +51,7 @@ public class Scan {
 
     private boolean got_eof; // true iff have seen EOF
     private boolean putback; // true iff put a char back
+    private boolean var_arr;
     private int c;           // current or putback char
                              // (int rather than char to handle EOF)
     private static final int EOF = -1;
@@ -230,6 +232,16 @@ public class Scan {
             System.err.println("scan: identifier too long -- truncated to "
                                + str);
         }
+        
+        // Checking if var is an array -- TODO!
+        var_arr = false;
+        if(putback) {
+        	putback = false;
+        }
+        else {
+        	c = getchar();
+        }
+        
         return str;
     }
 
