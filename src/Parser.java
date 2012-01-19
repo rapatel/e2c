@@ -10,7 +10,7 @@ public class Parser {
     TK f_declaration[] = {TK.VAR, TK.CONST, TK.none};
     TK f_var_decl[] = {TK.VAR, TK.none};
     TK f_const_decl[] = {TK.CONST, TK.none};
-    TK f_statement[] = {TK.ID, TK.PRINT, TK.IF, TK.WHILE, TK.FOR, TK.none};
+    TK f_statement[] = {TK.ID, TK.PRINT, TK.IF, TK.WHILE, TK.FOR, TK.REPEAT, TK.none};
     TK f_print[] = {TK.PRINT, TK.none};
     TK f_assignment[] = {TK.ID, TK.none};
     TK f_if[] = {TK.IF, TK.none};
@@ -18,6 +18,7 @@ public class Parser {
     TK f_for[] = {TK.FOR, TK.none};
     TK f_expression[] = {TK.ID, TK.NUM, TK.LPAREN, TK.none};
     TK f_str[] = {TK.STR, TK.none};
+    TK f_repeat[] = {TK.REPEAT, TK.none};
 
     // tok is global to all these parsing methods;
     // scan just calls the scanner's scan method and saves the result in tok.
@@ -140,6 +141,8 @@ public class Parser {
             whileproc();
         else if( first(f_for) )
             forproc();
+        else if ( first(f_repeat))
+        	repeatproc();
         else
             parse_error("oops -- statement bad first");
     }
@@ -172,21 +175,16 @@ public class Parser {
         else {
         	parse_error("Print statement incorrect.");
         }
-        
-        /*
-        if( is(TK.STR)) {
-        	gcprint("printf(\"" + tok.string + "\\n\");");
-        	scan();
-        }
-        else if( is(TK.ERROR) ) {
-        	parse_error("missing quotes at end of string");
-        }
-        else {
-	        gcprint("printf(\"%d\\n\", ");
-	        expression();
-	        gcprint(");");
-        }
-        */
+    }
+    
+    private void repeatproc() {
+    	mustbe(TK.REPEAT);
+    	gcprint("do");
+    	block();
+    	mustbe(TK.UNTIL);
+    	gcprint("while(!(");
+    	expression();
+    	gcprint("));");
     }
 
     private void ifproc(){

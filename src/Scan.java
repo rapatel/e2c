@@ -65,9 +65,13 @@ public class Scan {
 
         while(true) {
 // QUESTION 1: What is purpose of putback?
+// 				putback tells the scanner that we already have read the next
+// 				character in the input stream, therefore, when we first enter scan(), do not call getchar().
+// ANSWER 2: putback tells us that we have read an extra character in functions that are reading an ID, NUM, Comment, Divide/NE.
 
 // QUESTION 2: What are the values of putback and c just before the identifier
 //             'hello' is returned from the input 'hello*45'?
+// ANSWER 2: ANS: In this case, putback will be 'true' and c will be '*'
 
             if( putback) {
                 putback = false;
@@ -102,6 +106,9 @@ public class Scan {
                         return ccase1('-', TK.MINUS);
 
 // QUESTION 3:  What does the following case and the code in it do?
+// ANSWER 3: The following checks whether the next token type is DIVIDE or NOT EQUAL. The scanner already knows that
+//			 the current character is a '/', so it must read the next char. If the next char read is not a '=', then the scanner
+// 			 has read an extra char (and sets putback to true) and knows it is a DIVIDE token. Otherwise, it is a NOT EQUAL token.
                     case '/':
                         return ccase1or2('/','=',TK.DIVIDE,TK.NE);
 
@@ -168,7 +175,6 @@ public class Scan {
 			str = str + (char)c;
 			c = getchar();
 		}
-		//str = "hello";
 		return new Token(TK.STR, str, linenumber);
 	}
 
@@ -277,6 +283,8 @@ public class Scan {
         if (str.equals("for"))       return TK.FOR;
         if (str.equals("to"))        return TK.TO;
         if (str.equals("downto"))    return TK.DOWNTO;
+        if (str.equals("repeat"))    return TK.REPEAT;
+        if (str.equals("until"))     return TK.UNTIL;
  
         // no keyword matched, so ...
         return TK.ID;
