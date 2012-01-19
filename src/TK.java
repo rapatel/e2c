@@ -59,8 +59,10 @@ public class TK {
     
     public static final TK STR     = new TK("TK.STR");     // string
     
-    public static final TK ARR     = new TK("TK.ARR");     // array
-
+    public static final TK COL     = new TK("TK.COL");     // :
+    
+    public static final TK ENDARR  = new TK("TK.ENDARR");  // ]
+    
     public static final TK EOF    = new TK("TK.EOF");      // end of file
 
     // TK.ERROR special error token kind (for scanner to return to parser)

@@ -38,6 +38,7 @@ public class Parser {
 
     // for code generation
     private static final int initialValueEVariable = 8888;
+    private static final int initialValueEVariableArr = 4444;
 
     // print something in the generated code
     private void gcprint(String str) {
@@ -89,18 +90,55 @@ public class Parser {
     }
 
     private void var_decl_id() {
-        if( is(TK.ID) ) {
-            if (symtab.add_entry(tok.string, tok.lineNumber, TK.VAR)) {
-                gcprint("int ");
-                gcprintid(tok.string);
-                gcprint("="+initialValueEVariable+";");
+		if (is(TK.ID)) {
+			if (symtab.add_entry(tok.string, tok.lineNumber, TK.VAR)) {
+				gcprint("int ");
+				if (tok.arr) {
+					String varID = tok.string;
+					int lbound, ubound, arrSize;
+					scan();
+					lbound = bound();
+					mustbe(TK.COL);
+					ubound = bound();
+					if (is(TK.ENDARR)) {
+						arrSize = ubound - lbound + 1;
+						if (arrSize < 1) {
+							parse_error("size of the array must be positive!");
+						}
+						symtab.edit_array(varID, lbound, ubound, tok.lineNumber);
+
+						gcprintid(varID + "[" + arrSize + "]");
+						gcprint("= {" + initialValueEVariableArr + ",");
+						for (int i = 1; i < arrSize; i++)
+							gcprint(initialValueEVariableArr + ",");
+						gcprint("};");
+					} else {
+						parse_error("expected closing bracket!");
+					}
+				}
+                else {
+                    gcprintid(tok.string);
+                    gcprint("="+initialValueEVariable+";");
+                }
             }
             scan();
         }
         else {
             parse_error("expected id in var declaration, got " + tok);
         }
-    }
+	}
+
+	private int bound() {
+		int my_bound = 0;
+		if (is(TK.MINUS)) {
+			scan();
+			my_bound = 0 - Integer.parseInt(tok.string);
+		} else if (is(TK.NUM)) {
+			my_bound = Integer.parseInt(tok.string);
+		}
+		mustbe(TK.NUM);
+		return my_bound;
+	}
 
     private void const_decl() {
         mustbe(TK.CONST);
@@ -142,7 +180,7 @@ public class Parser {
         else if( first(f_for) )
             forproc();
         else if ( first(f_repeat))
-        	repeatproc();
+            repeatproc();
         else
             parse_error("oops -- statement bad first");
     }
@@ -164,27 +202,27 @@ public class Parser {
     private void print(){
         mustbe(TK.PRINT);
         if (first(f_str)) {
-        	gcprint("printf(\"" + tok.string + "\\n\");");
-        	scan();
+            gcprint("printf(\"" + tok.string + "\\n\");");
+            scan();
         }
         else if (first(f_expression)) {
-        	gcprint("printf(\"%d\\n\", ");
-	        expression();
-	        gcprint(");");
+            gcprint("printf(\"%d\\n\", ");
+            expression();
+            gcprint(");");
         }
         else {
-        	parse_error("Print statement incorrect.");
+            parse_error("Print statement incorrect.");
         }
     }
     
     private void repeatproc() {
-    	mustbe(TK.REPEAT);
-    	gcprint("do");
-    	block();
-    	mustbe(TK.UNTIL);
-    	gcprint("while(!(");
-    	expression();
-    	gcprint("));");
+        mustbe(TK.REPEAT);
+        gcprint("do");
+        block();
+        mustbe(TK.UNTIL);
+        gcprint("while(!(");
+        expression();
+        gcprint("));");
     }
 
     private void ifproc(){

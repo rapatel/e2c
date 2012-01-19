@@ -30,6 +30,20 @@ public class Symtab {
         return level;
     }
 
+    public boolean edit_array(String myid, int lbound, int ubound, int myline) {
+        Entry e = search_this_block(myid);
+        if (e == null) {
+        	// Couldn't find array in this same block
+			System.err.println(myid + " not declared on line " + myline);
+			return false;
+        } else {
+        	e.lbound = lbound;
+        	e.ubound = ubound;
+        	e.arrSize = ubound-lbound+1;
+        }
+        return true;
+    }
+    
     // add var or const entry to current block
     public boolean add_entry(String myid, int myline, TK myVarOrConst) {
         Entry e = search_this_block(myid);

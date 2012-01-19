@@ -67,8 +67,8 @@ public class Scan {
 
         while(true) {
 // QUESTION 1: What is purpose of putback?
-// 				putback tells the scanner that we already have read the next
-// 				character in the input stream, therefore, when we first enter scan(), do not call getchar().
+//                 putback tells the scanner that we already have read the next
+//                 character in the input stream, therefore, when we first enter scan(), do not call getchar().
 // ANSWER 2: putback tells us that we have read an extra character in functions that are reading an ID, NUM, Comment, Divide/NE.
 
 // QUESTION 2: What are the values of putback and c just before the identifier
@@ -84,7 +84,12 @@ public class Scan {
             if ( myisalpha((char) c) ) {
                 /* identifier. */
                 String id = buildID();
-                return new Token(keywordLookup(id), id, linenumber);
+                if(var_arr) {
+                    return new Token(keywordLookup(id), id, linenumber, true);
+                }
+                else {
+                    return new Token(keywordLookup(id), id, linenumber);
+                }
             }
             else if ( myisdigit((char) c) ) {
                 /* number. */
@@ -109,8 +114,8 @@ public class Scan {
 
 // QUESTION 3:  What does the following case and the code in it do?
 // ANSWER 3: The following checks whether the next token type is DIVIDE or NOT EQUAL. The scanner already knows that
-//			 the current character is a '/', so it must read the next char. If the next char read is not a '=', then the scanner
-// 			 has read an extra char (and sets putback to true) and knows it is a DIVIDE token. Otherwise, it is a NOT EQUAL token.
+//             the current character is a '/', so it must read the next char. If the next char read is not a '=', then the scanner
+//              has read an extra char (and sets putback to true) and knows it is a DIVIDE token. Otherwise, it is a NOT EQUAL token.
                     case '/':
                         return ccase1or2('/','=',TK.DIVIDE,TK.NE);
 
@@ -123,7 +128,12 @@ public class Scan {
                         return ccase2(':','=',TK.ASSIGN);
                         
                     case '"':
-                    	return ccaseStr(TK.STR);
+                        return ccaseStr(TK.STR);
+                        
+                    case ']':
+                        return new Token(TK.ENDARR,
+                                         new String(String.valueOf(c)),
+                                         linenumber);
 
                     case EOF:
                         got_eof = true;
@@ -162,29 +172,29 @@ public class Scan {
         } catch (java.io.IOException e) {
             System.err.println("oops ");
             e.printStackTrace();
-		}
-		return c;
-	}
+        }
+        return c;
+    }
 
-	private Token ccaseStr(TK r) {
-		String str = "";
-		c = getchar();
-		while (c != '"') {
-			if (c == EOF || c == '\n') {
-				System.err.println("Scan: line " + linenumber + " String format not correct (missing quotations).");
-				return new Token(TK.ERROR, "bad ccaseStr", linenumber);
-			}
-			str = str + (char)c;
-			c = getchar();
-		}
-		return new Token(TK.STR, str, linenumber);
-	}
+    private Token ccaseStr(TK r) {
+        String str = "";
+        c = getchar();
+        while (c != '"') {
+            if (c == EOF || c == '\n') {
+                System.err.println("Scan: line " + linenumber + " String format not correct (missing quotations).");
+                return new Token(TK.ERROR, "bad ccaseStr", linenumber);
+            }
+            str = str + (char)c;
+            c = getchar();
+        }
+        return new Token(TK.STR, str, linenumber);
+    }
 
-	private Token ccase1(char c, TK r) {
-		return new Token(r, new String(String.valueOf(c)), linenumber);
-	}
+    private Token ccase1(char c, TK r) {
+        return new Token(r, new String(String.valueOf(c)), linenumber);
+    }
 
-	private Token ccase1or2(char c1, char c2, TK r1, TK r2) {
+    private Token ccase1or2(char c1, char c2, TK r1, TK r2) {
         c = getchar();
         if (c == c2) {
             return new Token(
@@ -204,6 +214,10 @@ public class Scan {
             return new Token(
                      r, String.valueOf(c1)+String.valueOf(c2),
                      linenumber);
+        }
+        else if (c1 == ':') {
+            putback = true;
+            return new Token(TK.COL, new String(String.valueOf(c1)), linenumber);
         }
         else {
             System.err.println("scan: got got " + c1 +
@@ -233,13 +247,11 @@ public class Scan {
                                + str);
         }
         
-        // Checking if var is an array -- TODO!
+        // Checking if var is an array
         var_arr = false;
-        if(putback) {
-        	putback = false;
-        }
-        else {
-        	c = getchar();
+        if(c == '[') {
+            var_arr = true;
+            putback = false;
         }
         
         return str;
