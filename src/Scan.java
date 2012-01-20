@@ -114,8 +114,8 @@ public class Scan {
 
 // QUESTION 3:  What does the following case and the code in it do?
 // ANSWER 3: The following checks whether the next token type is DIVIDE or NOT EQUAL. The scanner already knows that
-//             the current character is a '/', so it must read the next char. If the next char read is not a '=', then the scanner
-//              has read an extra char (and sets putback to true) and knows it is a DIVIDE token. Otherwise, it is a NOT EQUAL token.
+//           the current character is a '/', so it must read the next char. If the next char read is not a '=', then the scanner
+//           has read an extra char (and sets putback to true) and knows it is a DIVIDE token. Otherwise, it is a NOT EQUAL token.
                     case '/':
                         return ccase1or2('/','=',TK.DIVIDE,TK.NE);
 
@@ -125,7 +125,7 @@ public class Scan {
                         return ccase1or2('>','=',TK.GT,TK.GE);
 
                     case ':':
-                        return ccase2(':','=',TK.ASSIGN);
+                        return ccase1or2(':','=',TK.COL, TK.ASSIGN);
                         
                     case '"':
                         return ccaseStr(TK.STR);
@@ -214,10 +214,6 @@ public class Scan {
             return new Token(
                      r, String.valueOf(c1)+String.valueOf(c2),
                      linenumber);
-        }
-        else if (c1 == ':') {
-            putback = true;
-            return new Token(TK.COL, new String(String.valueOf(c1)), linenumber);
         }
         else {
             System.err.println("scan: got got " + c1 +

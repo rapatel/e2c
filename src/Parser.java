@@ -187,7 +187,16 @@ public class Parser {
 
     private void assignment(){
         if( is(TK.ID) ) {
-            lvalue_id(tok.string, tok.lineNumber);
+            Entry e = lvalue_id(tok.string, tok.lineNumber);
+            if(e.arrSize>0 && tok.arr) {
+            	// Valid array decalred, and referenced
+            }
+            else if(tok.arr) {
+            	// Error - using as array, but never was declared as an array
+            }
+            else if(e.arrSize>0) {
+            	// Error - declared as an array, but not using as an array
+            }
             scan();
         }
         else {
