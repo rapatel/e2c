@@ -94,39 +94,56 @@ public class Parser {
 			if (symtab.add_entry(tok.string, tok.lineNumber, TK.VAR)) {
 				gcprint("int ");
 				if (tok.arr) {
-					String varID = tok.string;
-					int lbound, ubound, arrSize;
-					scan();
-					lbound = bound();
-					mustbe(TK.COL);
-					ubound = bound();
-					if (is(TK.ENDARR)) {
-						arrSize = ubound - lbound + 1;
-						if (arrSize < 1) {
-							parse_error("size of the array must be positive!");
-						}
-						symtab.edit_array(varID, lbound, ubound, tok.lineNumber);
-
-						gcprintid(varID + "[" + arrSize + "]");
-						gcprint("= {" + initialValueEVariableArr + ",");
-						for (int i = 1; i < arrSize; i++)
-							gcprint(initialValueEVariableArr + ",");
-						gcprint("};");
-					} else {
-						parse_error("expected closing bracket!");
-					}
+					arr_dec(false);
 				}
                 else {
                     gcprintid(tok.string);
                     gcprint("="+initialValueEVariable+";");
                 }
             }
+			else if (tok.arr) {
+				arr_dec(true);
+			}
             scan();
         }
         else {
             parse_error("expected id in var declaration, got " + tok);
         }
 	}
+    
+    private void arr_dec(boolean skip) {
+		if (skip) {
+			scan();
+			bound();
+			mustbe(TK.COL);
+			bound();
+			if (!(is(TK.ENDARR)))
+				parse_error("expected closing bracket!");
+		}
+		else {
+			String varID = tok.string;
+			int lbound, ubound, arrSize;
+			scan();
+			lbound = bound();
+			mustbe(TK.COL);
+			ubound = bound();
+			if (is(TK.ENDARR)) {
+				arrSize = ubound - lbound + 1;
+				if (arrSize < 1) {
+					parse_error("size of the array must be positive!");
+				}
+				symtab.edit_array(varID, lbound, ubound, tok.lineNumber);
+
+				gcprintid(varID + "[" + arrSize + "]");
+				gcprint("= {" + initialValueEVariableArr + ",");
+				for (int i = 1; i < arrSize; i++)
+					gcprint(initialValueEVariableArr + ",");
+				gcprint("};");
+			} else {
+				parse_error("expected closing bracket!");
+			}
+		}
+    }
 
 	private int bound() {
 		int my_bound = 0;
@@ -188,15 +205,27 @@ public class Parser {
     private void assignment(){
         if( is(TK.ID) ) {
             Entry e = lvalue_id(tok.string, tok.lineNumber);
+            
+            // TODO: Make function
             if(e.arrSize>0 && tok.arr) {
-            	// Valid array decalred, and referenced
+            	gcprint("[");
+            	gcprint("-("+ e.lbound +")+");
+            	scan();
+            	expression();
+            	if( is(TK.ENDARR) ) {
+            		gcprint("]");
+            	}
+            	else {
+            		parse_error("forgot closed bracket in array assignment");
+            	}
             }
             else if(tok.arr) {
-            	// Error - using as array, but never was declared as an array
+            	parse_error("using id as an array, but never was declared as an array");
             }
             else if(e.arrSize>0) {
-            	// Error - declared as an array, but not using as an array
+            	parse_error("declared id as an array, but not referencing as an array");
             }
+            
             scan();
         }
         else {
@@ -274,6 +303,9 @@ public class Parser {
         Entry iv = null; // index variable in symtab
         if( is(TK.ID) ) {
             iv = lvalue_id(tok.string, tok.lineNumber);
+            if(iv.arrSize>0) {
+            	parse_error("array can't be index variable");
+            }
             iv.setIsIV(true); // mark Entry as IV
             scan();
         }
@@ -345,7 +377,25 @@ public class Parser {
             gcprint(")");
         }
         else if( is(TK.ID) ) {
-            rvalue_id(tok.string, tok.lineNumber);
+            Entry e = rvalue_id(tok.string, tok.lineNumber);
+            
+			// TODO: Make function
+			if (e.arrSize > 0 && tok.arr) {
+				gcprint("[");
+				gcprint("-("+ e.lbound +")+");
+				scan();
+				expression();
+				if (is(TK.ENDARR)) {
+					gcprint("]");
+				} else {
+					parse_error("forgot closed bracket in array assignment");
+				}
+			} else if (tok.arr) {
+				parse_error("using id as an array, but never was declared as an array");
+			} else if (e.arrSize > 0) {
+				parse_error("declared id as an array, but not referencing as an array");
+			}
+            
             scan();
         }
         else if( is(TK.NUM) ) {
@@ -377,7 +427,7 @@ public class Parser {
         return e;
     }
 
-    private void rvalue_id(String id, int lno) {
+    private Entry rvalue_id(String id, int lno) {
         Entry e = symtab.search(id);
         if( e == null) {
             System.err.println("undeclared variable "+ id + " on line "
@@ -385,6 +435,7 @@ public class Parser {
             System.exit(1);
         }
         gcprintid(id);
+        return e;
     }
 
 
