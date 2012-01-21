@@ -54,6 +54,7 @@ public class Parser {
 
     private void program() {
         gcprint("#include <stdio.h>");
+        gcprint("#include <stdlib.h>");
         gcprint("main() ");
         block();
         if(bc) {
