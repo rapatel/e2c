@@ -10,6 +10,7 @@ class Entry {
     public int arrSize;
     public int lbound;
     public int ubound;
+    public String varName;
 
     public Entry(String name, int lineNumber, TK varOrConst) {
         this.name = name;
@@ -19,6 +20,7 @@ class Entry {
         this.arrSize = 0;
         this.lbound = 0;
         this.ubound = 0;
+        this.varName = name;
     }
     String getName() {
         return name;

@@ -76,12 +76,12 @@ public class Parser {
      }
     
     private void bcGen() {
-    	gcprint("int bc(int x, int size)");
+    	gcprint("int bc(int x, int size, int line, char* str)");
     	gcprint("{");
     	gcprint("if(x<size && x>=0) {");
     	gcprint("return x;");
     	gcprint("} else {");
-    	gcprint("fprintf(stderr, \"Out of bounds.\\n\");");
+    	gcprint("fprintf(stderr, \"Out of bounds access of array '%s' at line %d\\n\", str, line);");
     	gcprint("exit(1);");
     	gcprint("}");
     	gcprint("}");
@@ -398,6 +398,10 @@ public class Parser {
 			if (is(TK.ENDARR)) {
 				gcprint(",");
 				gcprint(e.arrSize+"");
+				gcprint(",");
+				gcprint(tok.lineNumber+"");
+				gcprint(",");
+				gcprint("\"" + e.varName + "\"");
 				gcprint(")");
 				gcprint("]");
 			} else {
