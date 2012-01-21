@@ -207,7 +207,8 @@ public class Parser {
             Entry e = lvalue_id(tok.string, tok.lineNumber);
             
             // TODO: Make function
-            if(e.arrSize>0 && tok.arr) {
+            array(e);
+            /*if(e.arrSize>0 && tok.arr) {
             	gcprint("[");
             	gcprint("-("+ e.lbound +")+");
             	scan();
@@ -224,7 +225,7 @@ public class Parser {
             }
             else if(e.arrSize>0) {
             	parse_error("declared id as an array, but not referencing as an array");
-            }
+            }*/
             
             scan();
         }
@@ -380,7 +381,8 @@ public class Parser {
             Entry e = rvalue_id(tok.string, tok.lineNumber);
             
 			// TODO: Make function
-			if (e.arrSize > 0 && tok.arr) {
+            array(e);
+			/*if (e.arrSize > 0 && tok.arr) {
 				gcprint("[");
 				gcprint("-("+ e.lbound +")+");
 				scan();
@@ -394,7 +396,7 @@ public class Parser {
 				parse_error("using id as an array, but never was declared as an array");
 			} else if (e.arrSize > 0) {
 				parse_error("declared id as an array, but not referencing as an array");
-			}
+			}*/
             
             scan();
         }
@@ -404,6 +406,24 @@ public class Parser {
         }
         else
             parse_error("factor");
+    }
+    
+    private void array(Entry e) {
+    	if (e.arrSize > 0 && tok.arr) {
+			gcprint("[");
+			gcprint("-("+ e.lbound +")+");
+			scan();
+			expression();
+			if (is(TK.ENDARR)) {
+				gcprint("]");
+			} else {
+				parse_error("forgot closed bracket in array assignment");
+			}
+		} else if (tok.arr) {
+			parse_error("using id as an array, but never was declared as an array");
+		} else if (e.arrSize > 0) {
+			parse_error("declared id as an array, but not referencing as an array");
+		}
     }
 
     private Entry lvalue_id(String id, int lno) {
