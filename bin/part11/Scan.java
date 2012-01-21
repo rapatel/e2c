@@ -167,6 +167,8 @@ public class Scan {
 			}
 			if(c == '%')
 				str = str + "%";
+			if(c == '\\')
+				str = str + "\\";
 			str = str + (char)c;
 			c = getchar();
 		}
