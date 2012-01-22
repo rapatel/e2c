@@ -1,0 +1,5 @@
+running e2c t1401
+compiling the C generated code
+executing the a.out
+Out of bounds access of array 'a' at line 5
+4444
