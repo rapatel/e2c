@@ -10,7 +10,7 @@ public class Parser {
     TK f_declaration[] = {TK.VAR, TK.CONST, TK.none};
     TK f_var_decl[] = {TK.VAR, TK.none};
     TK f_const_decl[] = {TK.CONST, TK.none};
-    TK f_statement[] = {TK.ID, TK.PRINT, TK.IF, TK.WHILE, TK.FOR, TK.REPEAT, TK.none};
+    TK f_statement[] = {TK.ID, TK.PRINT, TK.IF, TK.WHILE, TK.FOR, TK.REPEAT, TK.EVERY, TK.none};
     TK f_print[] = {TK.PRINT, TK.none};
     TK f_assignment[] = {TK.ID, TK.none};
     TK f_if[] = {TK.IF, TK.none};
@@ -19,6 +19,7 @@ public class Parser {
     TK f_expression[] = {TK.ID, TK.NUM, TK.LPAREN, TK.none};
     TK f_str[] = {TK.STR, TK.none};
     TK f_repeat[] = {TK.REPEAT, TK.none};
+    TK f_every[] = {TK.EVERY, TK.none};
 
     // tok is global to all these parsing methods;
     // scan just calls the scanner's scan method and saves the result in tok.
@@ -73,6 +74,15 @@ public class Parser {
         }
         symtab.end_st_block();
         gcprint("}");
+     }
+    
+    private void partial_block() {
+        while( first(f_declaration) ) {
+            declaration();
+        }
+        while( first(f_statement) ) {
+            statement();
+        }
      }
     
     private void bcGen() {
@@ -216,8 +226,114 @@ public class Parser {
             forproc();
         else if ( first(f_repeat))
             repeatproc();
+        else if ( first(f_every))
+        	every();
         else
             parse_error("oops -- statement bad first");
+    }
+    
+    private void every(){
+    	boolean index = false;
+    	boolean reverse = false;
+    	Entry iv = null;
+    	mustbe(TK.EVERY);
+    	gcprint("{");
+    	symtab.begin_st_block();
+    	
+    	if(is(TK.ELT)) {
+    		scan();
+    	} else if (is(TK.INDEX)) {
+    		index = true;
+    		scan();
+    	}
+    	if(is(TK.FWD)) {
+    		scan();
+    	} else if (is(TK.REV)) {
+    		reverse = true;
+    		scan();
+    	}
+    	if(is(TK.ID)) {
+    		if (symtab.add_entry(tok.string, tok.lineNumber, TK.VAR)) {
+    			iv = symtab.search(tok.string);
+    			iv.setIsIV(true); // mark Entry as IV
+    		} else {
+    			parse_error("something went wrong in adding index variable to symbol table.");
+    		}
+    	} else {
+    		parse_error("incorrect 'every' stmt format. expected an id.");
+    	}
+    	
+    	forloop(index, reverse);
+    	
+    	scan();
+    	mustbe(TK.DO);
+    	partial_block();
+    	mustbe(TK.END);
+    	
+    	gcprint("}"); // end of for loop
+    	symtab.end_st_block();
+    	gcprint("}");
+    }
+    
+    private void forloop(boolean i, boolean r) {
+    	String index_var = tok.string;
+    	Entry e = null;
+    	gcprint("int ");
+    	gcprintid(index_var);
+    	gcprint(";");
+    	if(!i) {
+    		gcprint("int ");
+        	gcprintid(index_var+"tmp");
+        	gcprint(";");
+    	}
+    	gcprint("for(");
+    	
+    	scan();
+    	mustbe(TK.COL);
+    	
+    	if(is(TK.ID)) {
+    		e = symtab.search(tok.string);
+    		if(e.arrSize == 0) {
+    			parse_error("second id in 'every' stmt must be an array " + tok.string);
+    		}
+    	} else {
+    		parse_error("incorrect 'every' stmt format. expected an id after colon.");
+    	}
+    	
+    	if(i) {
+    		if(r) {
+    			gcprintid(index_var);
+    			gcprint("=" + e.ubound + ";");
+    			gcprintid(index_var);
+    			gcprint(">=" + e.lbound + ";");
+    			gcprintid(index_var + "--)");
+    		} else {
+    			gcprintid(index_var);
+    			gcprint("=" + e.lbound + ";");
+    			gcprintid(index_var);
+    			gcprint("<=" + e.ubound + ";");
+    			gcprintid(index_var + "++)");
+    		}
+    		gcprint("{");
+    	} else {
+    		if(r) {
+    			gcprintid(index_var+"tmp");
+    			gcprint("="+e.arrSize+"-1;");
+    			gcprintid(index_var+"tmp");
+    			gcprint(">=0;");
+    			gcprintid(index_var+"tmp"+"--)");
+    		} else {
+    			gcprintid(index_var+"tmp");
+    			gcprint("=0;");
+    			gcprintid(index_var+"tmp");
+    			gcprint("<" + e.arrSize + ";");
+    			gcprintid(index_var+"tmp"+"++)");
+    		}
+    		gcprint("{");
+    		gcprintid(index_var);
+    		gcprint("=");
+    		gcprintid(e.varName+"[x_"+index_var+"tmp];");
+    	}
     }
 
     private void assignment(){

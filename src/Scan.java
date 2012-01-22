@@ -309,6 +309,11 @@ public class Scan {
         if (str.equals("downto"))    return TK.DOWNTO;
         if (str.equals("repeat"))    return TK.REPEAT;
         if (str.equals("until"))     return TK.UNTIL;
+        if (str.equals("every"))     return TK.EVERY;
+        if (str.equals("element"))   return TK.ELT;
+        if (str.equals("index"))     return TK.INDEX;
+        if (str.equals("forward"))   return TK.FWD;
+        if (str.equals("reverse"))   return TK.REV;
  
         // no keyword matched, so ...
         return TK.ID;

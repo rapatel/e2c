@@ -32,7 +32,8 @@ public class TK {
     public static final TK TO      = new TK("TK.TO");      // to
     public static final TK DOWNTO  = new TK("TK.DOWNTO");  // downto
     public static final TK REPEAT  = new TK("TK.REPEAT");  // repeat
-    public static final TK UNTIL  = new TK("TK.UNTIL");     // string
+    public static final TK UNTIL  = new TK("TK.UNTIL");    // string
+    public static final TK EVERY  = new TK("TK.EVERY");    // every
 
   
     public static final TK COMMA  = new TK("TK.COMMA");    // ,
@@ -51,6 +52,11 @@ public class TK {
     public static final TK GT     = new TK("TK.GT");       // >
     public static final TK LE     = new TK("TK.LE");       // <=
     public static final TK GE     = new TK("TK.GE");       // >=
+    
+    public static final TK ELT    = new TK("TK.ELT");       // Element
+    public static final TK INDEX  = new TK("TK.INDEX");     // Index
+    public static final TK FWD    = new TK("TK.FWD");       // Forward
+    public static final TK REV    = new TK("TK.REV");       // Reverse
 
 
     public static final TK ID     = new TK("TK.ID");       // identifier
