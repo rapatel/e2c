@@ -3,19 +3,20 @@
 // Token Kind (internal representations of tokens)
 
 public class TK {
-    private final String name;
+	private final String name;
 
-    // declaring constructor as private prevents outsiders
-    // from creating new tokens;
-    // and so can test equality using ==.
-    private TK(String name) {
-        this.name = name;
-    }
-    public String toString() { // make it printable for debugging
-        return name;
-    }
+	// declaring constructor as private prevents outsiders
+	// from creating new tokens;
+	// and so can test equality using ==.
+	private TK(String name) {
+		this.name = name;
+	}
 
-    // each token has a TK object.
+	public String toString() { // make it printable for debugging
+		return name;
+	}
+
+	// each token has a TK object.
 
     public static final TK VAR     = new TK("TK.VAR");     // var
     public static final TK CONST   = new TK("TK.CONST");   // const
@@ -32,10 +33,9 @@ public class TK {
     public static final TK TO      = new TK("TK.TO");      // to
     public static final TK DOWNTO  = new TK("TK.DOWNTO");  // downto
     public static final TK REPEAT  = new TK("TK.REPEAT");  // repeat
-    public static final TK UNTIL  = new TK("TK.UNTIL");    // string
-    public static final TK EVERY  = new TK("TK.EVERY");    // every
+    public static final TK UNTIL   = new TK("TK.UNTIL");   // string
+    public static final TK EVERY   = new TK("TK.EVERY");   // every
 
-  
     public static final TK COMMA  = new TK("TK.COMMA");    // ,
 
     public static final TK ASSIGN = new TK("TK.ASSIGN");   // :=
@@ -52,23 +52,22 @@ public class TK {
     public static final TK GT     = new TK("TK.GT");       // >
     public static final TK LE     = new TK("TK.LE");       // <=
     public static final TK GE     = new TK("TK.GE");       // >=
-    
-    public static final TK ELT    = new TK("TK.ELT");       // Element
-    public static final TK INDEX  = new TK("TK.INDEX");     // Index
-    public static final TK FWD    = new TK("TK.FWD");       // Forward
-    public static final TK REV    = new TK("TK.REV");       // Reverse
 
+    public static final TK ELT    = new TK("TK.ELT");      // Element
+    public static final TK INDEX  = new TK("TK.INDEX");    // Index
+    public static final TK FWD    = new TK("TK.FWD");      // Forward
+    public static final TK REV    = new TK("TK.REV");      // Reverse
 
     public static final TK ID     = new TK("TK.ID");       // identifier
 
-    public static final TK NUM    = new TK("TK.NUM");      // number
-    
-    public static final TK STR     = new TK("TK.STR");     // string
-    
-    public static final TK COL     = new TK("TK.COL");     // :
-    
-    public static final TK ENDARR  = new TK("TK.ENDARR");  // ]
-    
+	public static final TK NUM    = new TK("TK.NUM");      // number
+
+    public static final TK STR    = new TK("TK.STR");      // string
+
+    public static final TK COL    = new TK("TK.COL");      // :
+
+    public static final TK ENDARR = new TK("TK.ENDARR");   // ]
+
     public static final TK EOF    = new TK("TK.EOF");      // end of file
 
     // TK.ERROR special error token kind (for scanner to return to parser)
