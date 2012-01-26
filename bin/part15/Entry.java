@@ -41,7 +41,8 @@ class Entry {
         isIV = is;
     }
     public String whatAreYou() {
-        return  isVar()?"variable"
+        return isVar()&&arrSize>0 ? "array" 
+	       :isVar()?"variable"
                :isConst()?"constant"
                :"OOPS Entry whatAreYou()";
     }

@@ -169,7 +169,7 @@ public class Scan {
 		c = getchar();
 		while (c != '"') {
 			if (c == EOF || c == '\n') {
-				System.err.println("scan: line " + linenumber + " string missing closing \"; ");
+				System.err.println("scan: string missing closing \"; quitting near " + str);
 				return new Token(TK.ERROR, "bad ccaseStr", linenumber);
 			}
 			if(c == '%')

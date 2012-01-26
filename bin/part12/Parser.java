@@ -173,7 +173,7 @@ public class Parser {
 	        gcprint(");");
         }
         else {
-        	parse_error("Print statement incorrect.");
+        	System.exit(1);
         }
     }
     

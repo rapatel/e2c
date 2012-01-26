@@ -76,12 +76,12 @@ public class Parser {
      }
     
     private void bcGen() {
-    	gcprint("int bc(int x, int size, int line, char* str)");
+    	gcprint("int bc(int x, int size, int line, char* str, int lbound, int ubound)");
     	gcprint("{");
     	gcprint("if(x<size && x>=0) {");
     	gcprint("return x;");
     	gcprint("} else {");
-    	gcprint("fprintf(stderr, \"Out of bounds access of array '%s' at line %d\\n\", str, line);");
+    	gcprint("fprintf(stderr, \"subscript (%d) out of bounds for array %s[%d:%d] on line %d\\n\", x+lbound, str, lbound, ubound, line);");
     	gcprint("exit(1);");
     	gcprint("}");
     	gcprint("}");
@@ -148,7 +148,8 @@ public class Parser {
 			if (is(TK.ENDARR)) {
 				arrSize = ubound - lbound + 1;
 				if (arrSize < 1) {
-					parse_error("size of the array must be positive!");
+					System.err.println("declared size of " + varID + " is <= 0 (" + arrSize + ") on line " + tok.lineNumber);
+					System.exit(1);
 				}
 				symtab.edit_array(varID, lbound, ubound, tok.lineNumber);
 
@@ -247,7 +248,7 @@ public class Parser {
             gcprint(");");
         }
         else {
-            parse_error("Print statement incorrect.");
+            System.exit(1);
         }
     }
     
@@ -302,7 +303,8 @@ public class Parser {
         if( is(TK.ID) ) {
             iv = lvalue_id(tok.string, tok.lineNumber);
             if(iv.arrSize>0) {
-            	parse_error("array can't be index variable");
+            	System.err.println("array on left-hand-side of assignment (used as index variable) " + iv.varName + " on line " + tok.lineNumber);
+		System.exit(1);
             }
             iv.setIsIV(true); // mark Entry as IV
             scan();
@@ -402,15 +404,21 @@ public class Parser {
 				gcprint(tok.lineNumber+"");
 				gcprint(",");
 				gcprint("\"" + e.varName + "\"");
+				gcprint(",");
+				gcprint(e.lbound+"");
+				gcprint(",");
+				gcprint(e.ubound+"");
 				gcprint(")");
 				gcprint("]");
 			} else {
 				parse_error("forgot closed bracket in array assignment");
 			}
 		} else if (tok.arr) {
-			parse_error("using id as an array, but never was declared as an array");
+			System.err.println("subscripting non-array " + e.varName + " on line " + tok.lineNumber);
+			System.exit(1);
 		} else if (e.arrSize > 0) {
-			parse_error("declared id as an array, but not referencing as an array");
+			System.err.println("missing subscript for array " + e.varName + " on line " + tok.lineNumber);
+			System.exit(1);
 		}
     }
 
